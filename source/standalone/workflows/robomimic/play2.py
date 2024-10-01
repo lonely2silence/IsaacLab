@@ -84,7 +84,7 @@ def main():
 
     
     # TODO: 找到具体的action与act_pre的对应关系
-    act_clow =   #从输出的act_pre转化为具体的action
+    act_clow =   #从输出的act_pre转化为具体的action # caoruixiang comment
 
     goal=obs_dict #obs_dict中goal的部分
     his_act = []
