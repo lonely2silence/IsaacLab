@@ -73,7 +73,7 @@ gym.register(
 ##
 
 gym.register(
-    id="Isaac-Reach-Franka-IK-Rel-v0",
+    id="Isaac-Reach-Franka-IK-Rel-v0", #目前所有代码使用的任务环境
     entry_point="omni.isaac.orbit.envs:RLTaskEnv",
     kwargs={
         "env_cfg_entry_point": ik_rel_env_cfg.FrankaReachEnvCfg,

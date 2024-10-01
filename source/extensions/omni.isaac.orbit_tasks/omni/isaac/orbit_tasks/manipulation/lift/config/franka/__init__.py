@@ -68,13 +68,14 @@ gym.register(
 ##
 
 gym.register(
-    id="Isaac-Lift-Cube-Franka-IK-Rel-v0",
+    id="Isaac-Lift-Cube-Franka-IK-Rel-v0", #目前使用的任务环境
     entry_point="omni.isaac.orbit.envs:RLTaskEnv",
     kwargs={
         "env_cfg_entry_point": ik_rel_env_cfg.FrankaCubeLiftEnvCfg,
         "rsl_rl_cfg_entry_point": agents.rsl_rl_cfg.LiftCubePPORunnerCfg,
         "skrl_cfg_entry_point": f"{agents.__name__}:skrl_ppo_cfg.yaml",
         "robomimic_bc_cfg_entry_point": os.path.join(agents.__path__[0], "robomimic/bc.json"),
+        #"robomimic_bc_cfg_entry_point": os.path.join(agents.__path__[0], "robomimic/bc_transformer.json"),
     },
     disable_env_checker=True,
 )

@@ -25,7 +25,7 @@ import omni.isaac.core.utils.nucleus as nucleus_utils
 # get assets root path
 # note: we check only once at the start of the module to prevent multiple checks on the Nucleus Server
 NUCLEUS_ASSET_ROOT_DIR = nucleus_utils.get_assets_root_path()
-"""Path to the root directory on the Nucleus Server.
+"""Path to the root directory on the Nucleus Server. 
 
 This is resolved using Isaac Sim's Nucleus API. If the Nucleus Server is not running, then this
 will be set to None. The path is resolved using the following steps:

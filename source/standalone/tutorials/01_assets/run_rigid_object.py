@@ -54,7 +54,7 @@ def design_scene():
 
     # Create separate groups called "Origin1", "Origin2", "Origin3"
     # Each group will have a robot in it
-    origins = [[0.25, 0.25, 0.0], [-0.25, 0.25, 0.0], [0.25, -0.25, 0.0], [-0.25, -0.25, 0.0]]
+    origins = [[0.25, 0.25, 10], [-0.25, 0.25, 0.0], [0.25, -0.25, 0.0], [-0.25, -0.25, 0.0]]
     for i, origin in enumerate(origins):
         prim_utils.create_prim(f"/World/Origin{i}", "Xform", translation=origin)
 

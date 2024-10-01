@@ -46,7 +46,7 @@ def main():
     # parse configuration
     env_cfg = parse_env_cfg(args_cli.task, use_gpu=not args_cli.cpu, num_envs=1, use_fabric=not args_cli.disable_fabric)
     # we want to have the terms in the observations returned as a dictionary
-    # rather than a concatenated tensor
+    # rather than a concatenated tensor #翻译：我们希望将观察中的术语作为字典返回，而不是一个连接的张量
     env_cfg.observations.policy.concatenate_terms = False
 
     # create environment
@@ -54,13 +54,13 @@ def main():
 
     # acquire device
     device = TorchUtils.get_torch_device(try_to_use_cuda=True)
-    # restore policy
+    # restore policy #function for loading a model from a checkpoints
     policy, _ = FileUtils.policy_from_checkpoint(ckpt_path=args_cli.checkpoint, device=device, verbose=True)
 
     # reset environment
     obs_dict, _ = env.reset()
-    # robomimic only cares about policy observations
-    obs = obs_dict["policy"]
+    # robomimic only cares about policy observations 
+    obs = obs_dict["policy"] 
     # simulate environment
     while simulation_app.is_running():
         # run everything in inference mode

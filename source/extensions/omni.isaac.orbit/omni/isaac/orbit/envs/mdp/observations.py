@@ -25,7 +25,13 @@ if TYPE_CHECKING:
 """
 Root state.
 """
+def ee_pos_w(env: BaseEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
+    asset: RigidObject = env.scene[asset_cfg.name]
+    return asset.data.body_pos_w
 
+def ee_vel_w(env: BaseEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
+    asset: RigidObject = env.scene[asset_cfg.name]
+    return asset.data.body_vel_w
 
 def base_pos_z(env: BaseEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
     """Root height in the simulation world frame."""
@@ -205,3 +211,4 @@ Commands.
 def generated_commands(env: RLTaskEnv, command_name: str) -> torch.Tensor:
     """The generated command from command term in the command manager with the given name."""
     return env.command_manager.get_command(command_name)
+

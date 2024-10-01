@@ -26,7 +26,7 @@
 # SOFTWARE.
 
 """
-The main entry point for training policies from pre-collected data.
+The main entry point for training policies from pre-collected data. #主要的训练策略的入口点来自预先收集的数据。
 
 Args:
     algo: name of the algorithm to run.
@@ -348,7 +348,7 @@ def main(args):
         cfg_entry_point_key = f"robomimic_{args.algo}_cfg_entry_point"
 
         print(f"Loading configuration for task: {args.task}")
-        cfg_entry_point_file = gym.spec(args.task).kwargs.pop(cfg_entry_point_key)
+        cfg_entry_point_file = gym.spec(args.task).kwargs.pop(cfg_entry_point_key) #通过entry_point_key获取配置文件
         # check if entry point exists
         if cfg_entry_point_file is None:
             raise ValueError(

@@ -1,27 +1,9 @@
-# Copyright (c) 2022-2024, The ORBIT Project Developers.
-# All rights reserved.
-#
-# SPDX-License-Identifier: BSD-3-Clause
-
-"""This script demonstrates how to use the interactive scene interface to setup a scene with multiple prims.
-
-.. code-block:: bash
-
-    # Usage
-    ./orbit.sh -p source/standalone/tutorials/03_scene/create_scene.py --num_envs 32
-
-"""
-
-"""Launch Isaac Sim Simulator first."""
-
-
 import argparse
 
 from omni.isaac.orbit.app import AppLauncher
 
 # add argparse arguments
-parser = argparse.ArgumentParser(description="Tutorial on using the interactive scene interface.")
-parser.add_argument("--num_envs", type=int, default=2, help="Number of environments to spawn.")
+parser = argparse.ArgumentParser(description="Tutorial on spawning and interacting with a rigid object.")
 # append AppLauncher cli args
 AppLauncher.add_app_launcher_args(parser)
 # parse the arguments
@@ -35,23 +17,22 @@ simulation_app = app_launcher.app
 
 import torch
 
+import omni.isaac.core.utils.prims as prim_utils
+
 import omni.isaac.orbit.sim as sim_utils
+import omni.isaac.orbit.utils.math as math_utils
+from omni.isaac.orbit.assets import RigidObject, RigidObjectCfg
 from omni.isaac.orbit.assets import ArticulationCfg, AssetBaseCfg
 from omni.isaac.orbit.scene import InteractiveScene, InteractiveSceneCfg
 from omni.isaac.orbit.sim import SimulationContext
 from omni.isaac.orbit.utils import configclass
 
-##
-# Pre-defined configs
-##
-from omni.isaac.orbit_assets import CARTPOLE_CFG  # isort:skip
 
+from omni.isaac.orbit_assets import HSR_CFG
 
 @configclass
-class CartpoleSceneCfg(InteractiveSceneCfg):
-    """Configuration for a cart-pole scene."""
-
-    # ground plane
+class HSRSceneCfg(InteractiveSceneCfg):
+    # ground
     ground = AssetBaseCfg(prim_path="/World/defaultGroundPlane", spawn=sim_utils.GroundPlaneCfg())
 
     # lights
@@ -59,15 +40,15 @@ class CartpoleSceneCfg(InteractiveSceneCfg):
         prim_path="/World/Light", spawn=sim_utils.DomeLightCfg(intensity=3000.0, color=(0.75, 0.75, 0.75))
     )
 
-    # articulation
-    cartpole: ArticulationCfg = CARTPOLE_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+    # HSR
+    hsr: ArticulationCfg = HSR_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot") #&&&
 
 
 def run_simulator(sim: sim_utils.SimulationContext, scene: InteractiveScene):
     """Runs the simulation loop."""
     # Extract scene entities
     # note: we only do this here for readability.
-    robot = scene["cartpole"]#直接索引机器人
+    robot = scene["hsr"]
     # Define simulation stepping
     sim_dt = sim.get_physics_dt()
     count = 0
@@ -85,17 +66,17 @@ def run_simulator(sim: sim_utils.SimulationContext, scene: InteractiveScene):
             root_state[:, :3] += scene.env_origins
             robot.write_root_state_to_sim(root_state)
             # set joint positions with some noise
-            joint_pos, joint_vel = robot.data.default_joint_pos.clone(), robot.data.default_joint_vel.clone()
-            joint_pos += torch.rand_like(joint_pos) * 0.1
-            robot.write_joint_state_to_sim(joint_pos, joint_vel)
+            # joint_pos, joint_vel = robot.data.default_joint_pos.clone(), robot.data.default_joint_vel.clone()
+            # joint_pos += torch.rand_like(joint_pos) * 0.1
+            # robot.write_joint_state_to_sim(joint_pos, joint_vel)
             # clear internal buffers
             scene.reset()
             print("[INFO]: Resetting robot state...")
         # Apply random action
         # -- generate random joint efforts
-        efforts = torch.randn_like(robot.data.joint_pos) * 5.0
+        # efforts = torch.randn_like(robot.data.joint_pos) * 5.0
         # -- apply action to the robot
-        robot.set_joint_effort_target(efforts)
+        # robot.set_joint_effort_target(efforts)
         # -- write data to sim
         scene.write_data_to_sim()
         # Perform step
@@ -105,7 +86,6 @@ def run_simulator(sim: sim_utils.SimulationContext, scene: InteractiveScene):
         # Update buffers
         scene.update(sim_dt)
 
-
 def main():
     """Main function."""
     # Load kit helper
@@ -114,7 +94,7 @@ def main():
     # Set main camera
     sim.set_camera_view([2.5, 0.0, 4.0], [0.0, 0.0, 2.0])
     # Design scene
-    scene_cfg = CartpoleSceneCfg(num_envs=args_cli.num_envs, env_spacing=0.0)
+    scene_cfg = HSRSceneCfg(num_envs=16, env_spacing=100.0)
     scene = InteractiveScene(scene_cfg)
     # Play the simulator
     sim.reset()

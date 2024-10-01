@@ -16,14 +16,15 @@ import omni.isaac.orbit.sim as sim_utils
 from omni.isaac.orbit.actuators import ImplicitActuatorCfg
 from omni.isaac.orbit.assets.articulation import ArticulationCfg
 from omni.isaac.orbit.utils.assets import ISAAC_ORBIT_NUCLEUS_DIR
+from omni.isaac.orbit.utils.assets import ISAAC_NUCLEUS_DIR
 
 ##
 # Configuration
 ##
 
-UR10_CFG = ArticulationCfg(
+COBOTTA_CFG = ArticulationCfg(
     spawn=sim_utils.UsdFileCfg(
-        usd_path=f"{ISAAC_ORBIT_NUCLEUS_DIR}/Robots/UniversalRobots/UR10/ur10_instanceable.usd",
+        usd_path=f"{ISAAC_NUCLEUS_DIR}/Robots/Denso/cobotta_pro_900.usd",
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
             disable_gravity=True,
             max_depenetration_velocity=5.0,
@@ -32,12 +33,18 @@ UR10_CFG = ArticulationCfg(
     ),
     init_state=ArticulationCfg.InitialStateCfg(
         joint_pos={
-            "shoulder_pan_joint": 1,
-            "shoulder_lift_joint": 1,
-            "elbow_joint": 1,
-            "wrist_1_joint": 1.0,
-            "wrist_2_joint": 1.0,
-            "wrist_3_joint": 1.0,
+            "joint_1": 0.0,
+            "joint_2": 0.0,
+            "joint_3": 1.7,
+            "joint_4": 0.0,
+            "joint_5": 1.5,
+            "joint_6": 0.0,
+            "finger_joint": 0.0,
+            "left_inner_knuckle_joint": 0.0,
+            "right_inner_knuckle_joint": 0.0,
+            "right_outer_knuckle_joint": 0.0,
+            "left_inner_finger_joint": 0.0,
+            "right_inner_finger_joint": 0.0,
         },
     ),
     actuators={

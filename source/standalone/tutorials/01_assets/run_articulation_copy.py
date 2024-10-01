@@ -43,7 +43,7 @@ from omni.isaac.orbit.sim import SimulationContext
 ##
 # Pre-defined configs
 ##
-from omni.isaac.orbit_assets import HSR_CFG  # isort:skip
+from omni.isaac.orbit_assets import hsr  # isort:skip
 
 
 def design_scene() -> tuple[dict, list[list[float]]]:
@@ -57,16 +57,16 @@ def design_scene() -> tuple[dict, list[list[float]]]:
 
     # Create separate groups called "Origin1", "Origin2", "Origin3"
     # Each group will have a robot in it
-    origins = [[0.0, 0.0, 10.0], [-10.0, 0.0, 10.0]]
+    origins = [[0.0, 0.0, 0.0]]
     # Origin 1
     prim_utils.create_prim("/World/Origin1", "Xform", translation=origins[0])
     # Origin 2
-    prim_utils.create_prim("/World/Origin2", "Xform", translation=origins[1])
+    #prim_utils.create_prim("/World/Origin2", "Xform", translation=origins[1])
 
     # Articulation
-    hsr = HSR_CFG.copy()
-    hsr.prim_path = "/World/Origin.*/Robot"
-    cartpole = Articulation(cfg=hsr)
+    franka_panda_cfg = hsr.HSR_CFG.copy()
+    franka_panda_cfg.prim_path = "/World/Origin.*/Robot"
+    cartpole = Articulation(cfg=franka_panda_cfg)
 
     # return the scene information
     scene_entities = {"cartpole": cartpole}
@@ -84,40 +84,39 @@ def run_simulator(sim: sim_utils.SimulationContext, entities: dict[str, Articula
     count = 0
     # Simulation loop
     while simulation_app.is_running():
-        # continue
         # Reset
-        if count % 1000000000 == 0:
-        #     reset counter
+        if count % 500 == 0:
+            # reset counter
             count = 0
             # reset the scene entities
             # root state
-        #     we offset the root state by the origin since the states are written in simulation world frame
-        #     if this is not done, then the robots will be spawned at the (0, 0, 0) of the simulation world
+            # we offset the root state by the origin since the states are written in simulation world frame
+            # if this is not done, then the robots will be spawned at the (0, 0, 0) of the simulation world
             root_state = robot.data.default_root_state.clone()
             root_state[:, :3] += origins
             robot.write_root_state_to_sim(root_state)
-        #     set joint positions with some noise
+            # set joint positions with some noise
             joint_pos, joint_vel = robot.data.default_joint_pos.clone(), robot.data.default_joint_vel.clone()
-            joint_pos += torch.rand_like(joint_pos) * 0.1
+            #joint_pos += torch.rand_like(joint_pos) * 0.1
             robot.write_joint_state_to_sim(joint_pos, joint_vel)
-        #     clear internal buffers
+            # clear internal buffers
             robot.reset()
-        #     print("[INFO]: Resetting robot state...")
+            print("[INFO]: Resetting robot state...")
         # Apply random action
         # -- generate random joint efforts
-        #efforts = torch.randn_like(robot.data.joint_pos) * 5.0
-        # efforts = torch.tensor([[0.0] * 29,[0.0] * 29])
-        # print(efforts)
+        efforts = torch.zeros((1, 29))
+        #efforts = torch.tensor([[0,1.712,-1.712,0,0,0]])
+        print(efforts)
         # -- apply action to the robot
-        # robot.set_joint_effort_target(efforts)
+        robot.set_joint_effort_target(efforts)
         # -- write data to sim
-        # robot.write_data_to_sim()
+        robot.write_data_to_sim()
         # Perform step
         sim.step()
         # Increment counter
         count += 1
         # Update buffers
-        # robot.update(sim_dt)
+        robot.update(sim_dt)
 
 
 def main():

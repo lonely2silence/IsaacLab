@@ -19,6 +19,7 @@ from omni.isaac.orbit_tasks.manipulation.lift.lift_env_cfg import LiftEnvCfg
 ##
 from omni.isaac.orbit.markers.config import FRAME_MARKER_CFG  # isort: skip
 from omni.isaac.orbit_assets.franka import FRANKA_PANDA_CFG  # isort: skip
+from omni.isaac.orbit_assets.cobotta import COBOTTA_CFG  # isort: skip
 
 
 @configclass
@@ -28,20 +29,31 @@ class FrankaCubeLiftEnvCfg(LiftEnvCfg):
         super().__post_init__()
 
         # Set Franka as robot
-        self.scene.robot = FRANKA_PANDA_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+        self.scene.robot = COBOTTA_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
 
         # Set actions for the specific robot type (franka)
         self.actions.body_joint_pos = mdp.JointPositionActionCfg(
-            asset_name="robot", joint_names=["panda_joint.*"], scale=0.5, use_default_offset=True
+            asset_name="robot", joint_names=["joint_.*"], scale=0.5, use_default_offset=True #可以由articulation的joint_pos来设置
         )
-        self.actions.finger_joint_pos = mdp.BinaryJointPositionActionCfg(
+        self.actions.finger_joint_pos = mdp.BinaryJointPositionActionCfg( #设置夹爪的动作
             asset_name="robot",
-            joint_names=["panda_finger.*"],
-            open_command_expr={"panda_finger_.*": 0.04},
-            close_command_expr={"panda_finger_.*": 0.0},
+            joint_names=["finger_joint",
+            "right_outer_knuckle_joint",
+            "left_inner_finger_joint",
+            "right_inner_finger_joint"],
+            close_command_expr={
+                "finger_joint": 0.5, 
+                "right_outer_knuckle_joint": -0.5, 
+                "left_inner_finger_joint": -0.5, 
+                "right_inner_finger_joint": 0.5,},
+            open_command_expr={
+                "finger_joint": 0.0, 
+                "right_outer_knuckle_joint": -0.0, 
+                "left_inner_finger_joint": -0.0, 
+                "right_inner_finger_joint": 0.0,},
         )
         # Set the body name for the end effector
-        self.commands.object_pose.body_name = "panda_hand"
+        self.commands.object_pose.body_name = "onrobot_rg6_base_link"
 
         # Set Cube as object
         self.scene.object = RigidObjectCfg(
@@ -56,7 +68,7 @@ class FrankaCubeLiftEnvCfg(LiftEnvCfg):
                     max_angular_velocity=1000.0,
                     max_linear_velocity=1000.0,
                     max_depenetration_velocity=5.0,
-                    disable_gravity=False,
+                    disable_gravity=False, #修改：不受重力影响
                 ),
             ),
         )
@@ -66,15 +78,15 @@ class FrankaCubeLiftEnvCfg(LiftEnvCfg):
         marker_cfg.markers["frame"].scale = (0.1, 0.1, 0.1)
         marker_cfg.prim_path = "/Visuals/FrameTransformer"
         self.scene.ee_frame = FrameTransformerCfg(
-            prim_path="{ENV_REGEX_NS}/Robot/panda_link0",
+            prim_path="{ENV_REGEX_NS}/Robot/base_link",
             debug_vis=False,
             visualizer_cfg=marker_cfg,
             target_frames=[
                 FrameTransformerCfg.FrameCfg(
-                    prim_path="{ENV_REGEX_NS}/Robot/panda_hand",
+                    prim_path="{ENV_REGEX_NS}/Robot/onrobot_rg6_base_link",
                     name="end_effector",
                     offset=OffsetCfg(
-                        pos=[0.0, 0.0, 0.1034],
+                        pos=[0.0, 0.0, 0.25], #修改：末端执行器的位置,但是没有在isaac中反应出来
                     ),
                 ),
             ],

@@ -24,7 +24,7 @@ parser.add_argument("--sensitivity", type=float, default=1.0, help="Sensitivity 
 # append AppLauncher cli args
 AppLauncher.add_app_launcher_args(parser)
 # parse the arguments
-args_cli = parser.parse_args()
+args_cli = parser.parse_args() #
 
 # launch omniverse app
 app_launcher = AppLauncher(headless=args_cli.headless)
@@ -69,7 +69,7 @@ def main():
     env_cfg.terminations.time_out = None
 
     # create environment
-    env = gym.make(args_cli.task, cfg=env_cfg)
+    env = gym.make(args_cli.task, cfg=env_cfg) #gym.make()函数创建环境
     # check environment name (for reach , we don't allow the gripper)
     if "Reach" in args_cli.task:
         carb.log_warn(
@@ -82,8 +82,8 @@ def main():
             pos_sensitivity=0.005 * args_cli.sensitivity, rot_sensitivity=0.005 * args_cli.sensitivity
         )
     elif args_cli.device.lower() == "spacemouse":
-        teleop_interface = Se3SpaceMouse(
-            pos_sensitivity=0.05 * args_cli.sensitivity, rot_sensitivity=0.005 * args_cli.sensitivity
+        teleop_interface = Se3SpaceMouse(  #这里调用了spacemouse的控制器,赋值给teleop_interface
+            pos_sensitivity=0.05 * args_cli.sensitivity, rot_sensitivity=0.005 * args_cli.sensitivity 
         )
     elif args_cli.device.lower() == "gamepad":
         teleop_interface = Se3Gamepad(
@@ -94,7 +94,7 @@ def main():
     # add teleoperation key for env reset
     teleop_interface.add_callback("L", env.reset)
     # print helper for keyboard
-    print(teleop_interface)
+    print(teleop_interface) 
 
     # reset environment
     env.reset()
@@ -105,14 +105,14 @@ def main():
         # run everything in inference mode
         with torch.inference_mode():
             # get keyboard command
-            delta_pose, gripper_command = teleop_interface.advance()
-            delta_pose = delta_pose.astype("float32")
+            delta_pose, gripper_command = teleop_interface.advance() #这里调用了advance函数,返回了SE3SpaceMouse的delta_pose和gripper_command
+            delta_pose = delta_pose.astype("float32") #实现了将delta_pose转换为float32类型
             # convert to torch
-            delta_pose = torch.tensor(delta_pose, device=env.unwrapped.device).repeat(env.unwrapped.num_envs, 1)
+            delta_pose = torch.tensor(delta_pose, device=env.unwrapped.device).repeat(env.unwrapped.num_envs, 1) 
             # pre-process actions
-            actions = pre_process_actions(delta_pose, gripper_command)
+            actions = pre_process_actions(delta_pose, gripper_command) #将delta_pose和gripper_command进行预处理，转换成能输出给模拟环境的actions
             # apply actions
-            env.step(actions)
+            env.step(actions) #将action传输给模拟环境
 
     # close the simulator
     env.close()

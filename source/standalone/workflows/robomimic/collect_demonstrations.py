@@ -75,7 +75,7 @@ def main():
     env_cfg.commands.object_pose.resampling_time_range = (1.0e9, 1.0e9)
     # we want to have the terms in the observations returned as a dictionary
     # rather than a concatenated tensor
-    env_cfg.observations.policy.concatenate_terms = False
+    env_cfg.observations.policy.concatenate_terms = False #这里是将观测值返回为字典而不是张量
 
     # add termination condition for reaching the goal otherwise the environment won't reset
     env_cfg.terminations.object_reached_goal = DoneTerm(func=mdp.object_reached_goal)
@@ -101,8 +101,8 @@ def main():
     dump_yaml(os.path.join(log_dir, "params", "env.yaml"), env_cfg)
     dump_pickle(os.path.join(log_dir, "params", "env.pkl"), env_cfg)
 
-    # create data-collector
-    collector_interface = RobomimicDataCollector(
+    # create data-collector #这里是创建数据收集器
+    collector_interface = RobomimicDataCollector( #这里是创建数据收集器,将argcli中的参数传入
         env_name=args_cli.task,
         directory_path=log_dir,
         filename=args_cli.filename,
@@ -121,12 +121,12 @@ def main():
     # simulate environment -- run everything in inference mode
     with contextlib.suppress(KeyboardInterrupt) and torch.inference_mode():
         while not collector_interface.is_stopped():
-            # get keyboard command
+            # get keyboard command #从遥操作设备中返回delta_pose和gripper_command
             delta_pose, gripper_command = teleop_interface.advance()
             # convert to torch
             delta_pose = torch.tensor(delta_pose, dtype=torch.float, device=env.device).repeat(env.num_envs, 1)
             # compute actions based on environment
-            actions = pre_process_actions(delta_pose, gripper_command)
+            actions = pre_process_actions(delta_pose, gripper_command) #将delta_pose和gripper_command进行预处理，转换成能输出给模拟环境的actions
 
             # TODO: Deal with the case when reset is triggered by teleoperation device.
             #   The observations need to be recollected.
@@ -136,6 +136,9 @@ def main():
                 collector_interface.add(f"obs/{key}", value)
             # -- actions
             collector_interface.add("actions", actions)
+
+            # #末端执行器的位置
+            # collector_interface.add("ee_pos", ee_pos)
 
             # perform action on environment
             obs_dict, rewards, terminated, truncated, info = env.step(actions)

@@ -20,6 +20,7 @@ CARTPOLE_CFG = ArticulationCfg(
             max_angular_velocity=1000.0,
             max_depenetration_velocity=100.0,
             enable_gyroscopic_forces=True,
+            disable_gravity=False
         ),
         articulation_props=sim_utils.ArticulationRootPropertiesCfg(
             enabled_self_collisions=False,

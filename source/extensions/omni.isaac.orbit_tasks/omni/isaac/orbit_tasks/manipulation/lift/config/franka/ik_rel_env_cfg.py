@@ -13,6 +13,7 @@ from . import joint_pos_env_cfg
 # Pre-defined configs
 ##
 from omni.isaac.orbit_assets.franka import FRANKA_PANDA_HIGH_PD_CFG  # isort: skip
+from omni.isaac.orbit_assets.cobotta import COBOTTA_CFG    
 
 
 @configclass
@@ -23,13 +24,13 @@ class FrankaCubeLiftEnvCfg(joint_pos_env_cfg.FrankaCubeLiftEnvCfg):
 
         # Set Franka as robot
         # We switch here to a stiffer PD controller for IK tracking to be better.
-        self.scene.robot = FRANKA_PANDA_HIGH_PD_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+        self.scene.robot = COBOTTA_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
 
         # Set actions for the specific robot type (franka)
         self.actions.body_joint_pos = DifferentialInverseKinematicsActionCfg(
             asset_name="robot",
-            joint_names=["panda_joint.*"],
-            body_name="panda_hand",
+            joint_names=["joint_.*"],
+            body_name="onrobot_rg6_base_link",
             controller=DifferentialIKControllerCfg(command_type="pose", use_relative_mode=True, ik_method="dls"),
             scale=0.5,
             body_offset=DifferentialInverseKinematicsActionCfg.OffsetCfg(pos=[0.0, 0.0, 0.107]),

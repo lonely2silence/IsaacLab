@@ -100,13 +100,14 @@ class Se3SpaceMouse(DeviceBase):
         self._additional_callbacks[key] = func
 
     def advance(self) -> tuple[np.ndarray, bool]:
-        """Provides the result from spacemouse event state.
+        """Provides the result from spacemouse event state. 
 
         Returns:
             A tuple containing the delta pose command and gripper commands.
         """
         rot_vec = Rotation.from_euler("XYZ", self._delta_rot).as_rotvec()
         # if new command received, reset event flag to False until keyboard updated.
+        #print(np.concatenate([self._delta_pos, rot_vec]), self._close_gripper) #加的一行
         return np.concatenate([self._delta_pos, rot_vec]), self._close_gripper
 
     """

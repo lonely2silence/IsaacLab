@@ -22,11 +22,13 @@ from omni.isaac.orbit.utils import configclass
 from omni.isaac.orbit.utils.assets import ISAAC_NUCLEUS_DIR
 
 from . import mdp
+from omni.isaac.orbit.envs.mdp import observations
+
 
 ##
 # Scene definition
 ##
-
+#定义lift任务的最基本环境
 
 @configclass
 class ObjectTableSceneCfg(InteractiveSceneCfg):
@@ -45,7 +47,7 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
     # Table
     table = AssetBaseCfg(
         prim_path="{ENV_REGEX_NS}/Table",
-        init_state=AssetBaseCfg.InitialStateCfg(pos=[0.5, 0, 0], rot=[0.707, 0, 0, 0.707]),
+        init_state=AssetBaseCfg.InitialStateCfg(pos=[0.7, 0, 0], rot=[0.707, 0, 0, 0.707]),
         spawn=UsdFileCfg(usd_path=f"{ISAAC_NUCLEUS_DIR}/Props/Mounts/SeattleLabTable/table_instanceable.usd"),
     )
 
@@ -69,16 +71,16 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
 
 
 @configclass
-class CommandsCfg:
+class CommandsCfg: #这里可以改变目标位置出现位置的范围
     """Command terms for the MDP."""
 
     object_pose = mdp.UniformPoseCommandCfg(
         asset_name="robot",
         body_name=MISSING,  # will be set by agent env cfg
         resampling_time_range=(5.0, 5.0),
-        debug_vis=True,
+        debug_vis=True,#目标位置可视化
         ranges=mdp.UniformPoseCommandCfg.Ranges(
-            pos_x=(0.4, 0.6), pos_y=(-0.25, 0.25), pos_z=(0.25, 0.5), roll=(0.0, 0.0), pitch=(0.0, 0.0), yaw=(0.0, 0.0)
+            pos_x=(0.3, 0.5), pos_y=(-0.25, 0.25), pos_z=(0.055, 0.055), roll=(0.0, 0.0), pitch=(0.0, 0.0), yaw=(0.0, 0.0)
         ),
     )
 
@@ -93,7 +95,7 @@ class ActionsCfg:
 
 
 @configclass
-class ObservationsCfg:
+class ObservationsCfg: #在此定义从环境中返回的观测值
     """Observation specifications for the MDP."""
 
     @configclass
@@ -104,7 +106,10 @@ class ObservationsCfg:
         joint_vel = ObsTerm(func=mdp.joint_vel_rel)
         object_position = ObsTerm(func=mdp.object_position_in_robot_root_frame)
         target_object_position = ObsTerm(func=mdp.generated_commands, params={"command_name": "object_pose"})
-        actions = ObsTerm(func=mdp.last_action)
+       
+        actions = ObsTerm(func=mdp.last_action) 
+        ee_position = ObsTerm(func=observations.ee_pos_w) #在obsconfig中加入末端位置
+        ee_velocity_abs = ObsTerm(func=observations.ee_vel_w) #在obsconfig中加入末端速度
 
         def __post_init__(self):
             self.enable_corruption = True

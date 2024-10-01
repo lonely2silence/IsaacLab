@@ -99,7 +99,7 @@ class RigidObjectData:
     @property
     def body_pos_w(self) -> torch.Tensor:
         """Positions of all bodies in simulation world frame. Shape is (num_instances, num_bodies, 3)."""
-        return self.body_state_w[..., :3]
+        return self.body_state_w[:, -7, :3] # num_bodies = 15
 
     @property
     def body_quat_w(self) -> torch.Tensor:
@@ -109,7 +109,8 @@ class RigidObjectData:
     @property
     def body_vel_w(self) -> torch.Tensor:
         """Velocity of all bodies in simulation world frame. Shape is (num_instances, num_bodies, 6)."""
-        return self.body_state_w[..., 7:13]
+        return self.body_state_w[:, -7, 7:10]
+        #return self.body_state_w[..., 7:13]
 
     @property
     def body_lin_vel_w(self) -> torch.Tensor:

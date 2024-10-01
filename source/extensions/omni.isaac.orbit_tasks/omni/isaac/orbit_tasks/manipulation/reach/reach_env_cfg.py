@@ -86,7 +86,7 @@ class CommandsCfg:
 class ActionsCfg:
     """Action specifications for the MDP."""
 
-    arm_action: ActionTerm = MISSING
+    arm_action: ActionTerm = MISSING 
     gripper_action: ActionTerm | None = None
 
 
